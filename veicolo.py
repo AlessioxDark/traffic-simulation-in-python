@@ -4,14 +4,19 @@ import pygame
 
 
 class Car:
-    def __init__(self,x,y,img):
+    def __init__(self,x,y,direction,velocity,img):
         self.x = x
         self.y = y
+        self.dir = direction
+        self.velocity = velocity
         self.img = img
     
-    def move(self,x,y):
-        self.x = x
-        self.y = y
+    def move(self):
+        self.x += self.velocity*self.dir[0]
+        self.y += self.velocity* self.dir[1]
+
+        
+
 
 
 

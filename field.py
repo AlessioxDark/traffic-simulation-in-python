@@ -45,33 +45,32 @@ def create_field():
 
   for riga in [0,20]:
     if riga == 0:
-      for colonna in range(15,17):
-        x = colonna * 32
-        y = riga * 32
-        img_casuale = random.choice(CARS)
-        car = Car(x,y,img_casuale)
-        
-        lista_auto.append(car)
-    else:
       for colonna in range(17,19):
         x = colonna * 32
         y = riga * 32
         img_casuale = random.choice(CARS)
-        car = Car(x,y,img_casuale)
+        car = Car(x,y,(0,1),1,img_casuale)
+        lista_auto.append(car)
+    else:
+      for colonna in range(15,17):
+        x = colonna * 32
+        y = riga * 32
+        img_casuale = random.choice(CARS)
+        car = Car(x,y,(0,-1),1,img_casuale)
         lista_auto.append(car)
 
   for riga in range(9,11):
         x = 0
         y = riga * 32
         img_casuale = random.choice(CARS)
-        car = Car(x,y,pygame.transform.rotate(img_casuale,90))
+        car = Car(x,y,(1,0),1,pygame.transform.rotate(img_casuale,90))
         lista_auto.append(car)
    
   for riga in range(11,13):
         x = 32 * 32
         y = riga * 32
         img_casuale = random.choice(CARS)
-        car = Car(x,y,pygame.transform.rotate(img_casuale,90))
+        car = Car(x,y,(-1,0),1,pygame.transform.rotate(img_casuale,90))
         lista_auto.append(car)
    
 
