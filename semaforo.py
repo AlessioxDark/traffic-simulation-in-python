@@ -1,112 +1,119 @@
 import pygame
 class Semaforo:
-    def __init__(self,color,img):
+    def __init__(self,color):
         self.color = color
-        self.img = img
 
     def change_color(self,color):
         self.color = color
-        match color:
-            case "RED":
-                self.img = semaforo_rosso
-            case "YELLOW":    
-                self.img = semaforo_giallo
-            case "GREEN":
-                self.img = semaforo_verde
-            case "GREEN_LEFT":
-                self.img = semaforo_verde_sinistra
-
+        
 FPS = 60
-SEC_GIALLO_NS = 12
-SEC_ROSSO_NS = 15
-SEC_VERDE_EO = 18
-SEC_GIALLO_EO = 23
-SEC_ROSSO_EO = 26
-SEC_FINE_CICLO = 30
+T_VERDE_DRITTO_NS = 8 * FPS
+T_GIALLO_DRITTO_NS = 10 * FPS
+T_VERDE_SX_NS = 14 * FPS
+T_GIALLO_SX_NS = 16 * FPS
+T_ALLRED_1 = 18 * FPS
+T_VERDE_DRITTO_EO = 26 * FPS
+T_GIALLO_DRITTO_EO = 28 * FPS
+T_VERDE_SX_EO = 32 * FPS
+T_GIALLO_SX_EO = 34 * FPS
+T_FINE_CICLO = 36 * FPS
 class GestoreTraffico:
-    def __init__(self,semaforo_nord,semaforo_sud,semaforo_est,semaforo_ovest):
-        self.current_phase = 1
-        self.semaforo_nord = semaforo_nord
-        self.semaforo_sud = semaforo_sud
-        self.semaforo_est = semaforo_est
-        self.semaforo_ovest = semaforo_ovest
+    def __init__(self):
+        self.semafori = {
+        "nord": Semaforo("RED"),
+        "nord_sx": Semaforo("RED_LEFT"),
+        "sud": Semaforo("RED"),
+        "sud_sx": Semaforo("RED_LEFT"),
+        "est": Semaforo("RED"),
+        "est_sx": Semaforo("RED_LEFT"),
+        "ovest": Semaforo("RED"),
+        "ovest_sx": Semaforo("RED_LEFT"),
+    }        
         self.time = 0
 
     def aggiorna(self):
         if self.time == 0:
-            print("fase 1")
-            self.semaforo_nord.change_color("GREEN")
-            self.semaforo_sud.change_color("GREEN")
+            self.semafori["nord"].change_color("GREEN")
+            self.semafori["sud"].change_color("GREEN")
+            self.semafori["nord_sx"].change_color("RED_LEFT")
+            self.semafori["sud_sx"].change_color("RED_LEFT")
 
-        elif self.time == SEC_GIALLO_NS * FPS:
-            print("fase 2")
-            self.semaforo_nord.change_color("GREEN_LEFT")
-            self.semaforo_sud.change_color("YELLOW")
+            # 2. Giallo Dritto N-S
+        elif self.time == T_VERDE_DRITTO_NS:
+            self.semafori["nord"].change_color("YELLOW")
+            self.semafori["sud"].change_color("YELLOW")
 
-        elif self.time == SEC_ROSSO_NS * FPS:
-            print("fase 3")
-            self.semaforo_nord.change_color("RED")
-            self.semaforo_sud.change_color("RED")
+            # 3. Verde Sinistra N-S (il dritto diventa rosso, la sinistra diventa verde)
+        elif self.time == T_GIALLO_DRITTO_NS:
+            self.semafori["nord"].change_color("RED")
+            self.semafori["sud"].change_color("RED")
+            self.semafori["nord_sx"].change_color("GREEN_LEFT")
+            self.semafori["sud_sx"].change_color("GREEN_LEFT")
 
-        elif self.time == SEC_VERDE_EO * FPS:
-            print("fase 4")
-            self.semaforo_ovest.change_color("GREEN")
-            self.semaforo_est.change_color("GREEN")
+            # 4. Giallo Sinistra N-S
+        elif self.time == T_VERDE_SX_NS:
+            self.semafori["nord_sx"].change_color("YELLOW_LEFT")
+            self.semafori["sud_sx"].change_color("YELLOW_LEFT")
 
-        elif self.time == SEC_GIALLO_EO * FPS:
-            print("fase 5")
-            self.semaforo_ovest.change_color("YELLOW")
-            self.semaforo_est.change_color("YELLOW")
+            # 5. All-Red / Tutto Rosso 1
+        elif self.time == T_GIALLO_SX_NS:
+            self.semafori["nord_sx"].change_color("RED_LEFT")
+            self.semafori["sud_sx"].change_color("RED_LEFT")
 
-        elif self.time == SEC_ROSSO_EO * FPS:
-            print("fase 6")
-            self.semaforo_ovest.change_color("RED")
-            self.semaforo_est.change_color("RED")
+            # 6. Verde Dritto E-O
+        elif self.time == T_ALLRED_1:
+            self.semafori["est"].change_color("GREEN")
+            self.semafori["ovest"].change_color("GREEN")
 
-        elif self.time == SEC_FINE_CICLO * FPS:
+            # 7. Giallo Dritto E-O
+        elif self.time == T_VERDE_DRITTO_EO:
+            self.semafori["est"].change_color("YELLOW")
+            self.semafori["ovest"].change_color("YELLOW")
+
+            # 8. Verde Sinistra E-O
+        elif self.time == T_GIALLO_DRITTO_EO:
+            self.semafori["est"].change_color("RED")
+            self.semafori["ovest"].change_color("RED")
+            self.semafori["est_sx"].change_color("GREEN_LEFT")
+            self.semafori["ovest_sx"].change_color("GREEN_LEFT")
+
+            # 9. Giallo Sinistra E-O
+        elif self.time == T_VERDE_SX_EO:
+            self.semafori["est_sx"].change_color("YELLOW_LEFT")
+            self.semafori["ovest_sx"].change_color("YELLOW_LEFT")
+
+            # 10. All-Red Finale
+        elif self.time == T_GIALLO_SX_EO:
+            self.semafori["est_sx"].change_color("RED_LEFT")
+            self.semafori["ovest_sx"].change_color("RED_LEFT")
+
+        
+
+        elif self.time == T_FINE_CICLO:
             self.time = -1
 
 
         print("TIME",self.time)
         self.time+=1
 
-    # def aggiorna(self):
-    #     if self.time == 0:
-    #         print("fase 1")
-    #         self.semaforo_nord.change_color("GREEN")
-    #         self.semaforo_sud.change_color("GREEN")
+    def get_semaforo(self, provenienza, manovra):
 
-    #     elif self.time == SEC_GIALLO_NS * FPS:
-    #         print("fase 2")
-    #         self.semaforo_nord.change_color("YELLOW")
-    #         self.semaforo_sud.change_color("YELLOW")
+        if manovra == "sinistra":
+            nome = provenienza + "_sx"
+        else:
+            nome = provenienza
 
-    #     elif self.time == SEC_ROSSO_NS * FPS:
-    #         print("fase 3")
-    #         self.semaforo_nord.change_color("RED")
-    #         self.semaforo_sud.change_color("RED")
-
-    #     elif self.time == SEC_VERDE_EO * FPS:
-    #         print("fase 4")
-    #         self.semaforo_ovest.change_color("GREEN")
-    #         self.semaforo_est.change_color("GREEN")
-
-    #     elif self.time == SEC_GIALLO_EO * FPS:
-    #         print("fase 5")
-    #         self.semaforo_ovest.change_color("YELLOW")
-    #         self.semaforo_est.change_color("YELLOW")
-
-    #     elif self.time == SEC_ROSSO_EO * FPS:
-    #         print("fase 6")
-    #         self.semaforo_ovest.change_color("RED")
-    #         self.semaforo_est.change_color("RED")
-
-    #     elif self.time == SEC_FINE_CICLO * FPS:
-    #         self.time = -1
+        return self.semafori[nome]
 
 
-    #     print("TIME",self.time)
-    #     self.time+=1
+def can_enter(self, provenienza, manovra):
+
+    semaforo = self.get_semaforo(provenienza, manovra)
+
+    if manovra == "sinistra":
+        return semaforo.color == "GREEN_LEFT"
+
+    return semaforo.color == "GREEN"
 
 
 
@@ -123,8 +130,20 @@ semaforo_verde = pygame.image.load(
 semaforo_verde_sinistra = pygame.image.load(
     r"C:\Users\aless\Desktop\Progetti Personali\traffic_system\assets\green_light_left.png"
 ).convert_alpha()
+semaforo_giallo_sinistra = pygame.image.load(
+    r"C:\Users\aless\Desktop\Progetti Personali\traffic_system\assets\yellow_light_left.png"
+).convert_alpha()
+semaforo_rosso_sinistra = pygame.image.load(
+    r"C:\Users\aless\Desktop\Progetti Personali\traffic_system\assets\red_light_left.png"
+).convert_alpha()
 
-semaforo_nord = Semaforo("RED",semaforo_rosso)
-semaforo_sud = Semaforo("RED",semaforo_rosso)
-semaforo_est = Semaforo("RED",semaforo_rosso)
-semaforo_ovest = Semaforo("RED",semaforo_rosso)
+
+SEMAFORI_IMG = {"RED":semaforo_rosso,
+    "YELLOW":semaforo_giallo,
+    "GREEN":semaforo_verde,
+    "GREEN_LEFT":semaforo_verde_sinistra,
+    "RED_LEFT":semaforo_rosso_sinistra,
+    "YELLOW_LEFT":semaforo_giallo_sinistra,
+    
+} 
+traffic_controller = GestoreTraffico()

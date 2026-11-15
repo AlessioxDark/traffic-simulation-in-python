@@ -1,15 +1,11 @@
-import random
 import pygame
-from semaforo import semaforo_est, semaforo_nord, semaforo_ovest, semaforo_sud
-from veicolo import Car, carica_auto
+
+from veicolo import genera_auto
 
 
 COLONNE = 33  # 1056 / 32 = 33
 RIGHE = 21  # 672 / 32 = 21
 FIELD = [[0 for _ in range(COLONNE)] for _ in range(RIGHE)]
-lista_auto = []
-blue_car,green_car,gray_car,black_car = carica_auto()
-CARS = (blue_car,green_car,gray_car,black_car)
 
 grass_img = pygame.image.load(
       r"C:\Users\aless\Desktop\Progetti Personali\traffic_system\assets\grass.png"
@@ -22,39 +18,9 @@ road_texture_img = pygame.image.load(
   ).convert()
 rotated_road = pygame.transform.rotate(road_img,90)
 
-def genera_auto():
-    for riga in [0,20]:
-      if riga == 0:
-        for colonna in range(17,19):
-          x = colonna * 32
-          y = riga * 32
-          img_casuale = random.choice(CARS)
-          car = Car(x,y,(0,1),1,img_casuale,semaforo_nord)
-          lista_auto.append(car)
-    else:
-      for colonna in range(15,17):
-        x = colonna * 32
-        y = riga * 32
-        img_casuale = random.choice(CARS)
-        car = Car(x,y,(0,-1),1,img_casuale,semaforo_sud)
-        lista_auto.append(car)
 
-    for riga in range(9,11):
-          x = 0
-          y = riga * 32
-          img_casuale = random.choice(CARS)
-          car = Car(x,y,(1,0),1,pygame.transform.rotate(img_casuale,90),semaforo_ovest)
-          lista_auto.append(car)
-   
-    for riga in range(11,13):
-          x = 32 * 32
-          y = riga * 32
-          img_casuale = random.choice(CARS)
-          car = Car(x,y,(-1,0),1,pygame.transform.rotate(img_casuale,90),semaforo_est)
-          lista_auto.append(car)
-   
 def create_field():
-  global FIELD,CARS,lista_auto
+  global FIELD
   for i in range(len(FIELD)):
     if i>=9 and i <=12:
       continue
@@ -75,7 +41,6 @@ def create_field():
       FIELD[i][j] = 3
 
 
-  genera_auto()
 
  
 
