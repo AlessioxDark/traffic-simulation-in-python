@@ -1,5 +1,8 @@
 import sys
 import pygame
+
+
+
 pygame.init()
 LARGHEZZA = 1056
 ALTEZZA = 672
@@ -8,19 +11,17 @@ schermo = pygame.display.set_mode((LARGHEZZA, ALTEZZA))
 pygame.display.set_caption("Traffic System")
 
 orologio = pygame.time.Clock()
-from field import create_field, lista_auto, grass_img,road_img,rotated_road,road_texture_img
-from semaforo import semaforo_rosso,semaforo_verde,Semaforo,semaforo_giallo,GestoreTraffico
+from field import create_field, lista_auto, grass_img,road_img,rotated_road,road_texture_img,genera_auto
+from semaforo import semaforo_est,semaforo_sud,semaforo_nord,semaforo_ovest,GestoreTraffico
 Running = True
 
 
 
-semaforo_nord = Semaforo("RED",semaforo_rosso)
-semaforo_sud = Semaforo("RED",semaforo_rosso)
-semaforo_est = Semaforo("RED",semaforo_rosso)
-semaforo_ovest = Semaforo("RED",semaforo_rosso)
+
 gestore = GestoreTraffico(semaforo_nord,semaforo_sud,semaforo_est,semaforo_ovest)
 INCROCIO_POSITIONS = [[14*32,9*32],[14*32,10*32],[19*32,11*32],[19*32,12*32],[17*32,8*32],[18*32,8*32],[15*32,13*32],[16*32,13*32]]
 FIELD = create_field()
+tick = 0
 while Running:
   for evento in pygame.event.get():
     if evento.type == pygame.QUIT:
@@ -43,18 +44,21 @@ while Running:
     
     schermo.blit(auto.img, (auto.x, auto.y))
 
-    if [auto.x,auto.y] in INCROCIO_POSITIONS:
+    if [auto.x,auto.y] in INCROCIO_POSITIONS and auto.semaforo.color == "RED":
       pass
     else:
       auto.move()
     
     
-  
+  if tick % (10*60) == 0:
+    genera_auto()
+
+    
   schermo.blit(semaforo_sud.img,(13*32,13*32))
   schermo.blit(semaforo_est.img,(19*32,13*32))
   schermo.blit(semaforo_ovest.img,(13*32,7*32))
   schermo.blit(semaforo_nord.img,(19*32,7*32))
-
+  tick+=1
   # Aggiorna il display limitando a 60 FPS
   pygame.display.flip()
   orologio.tick(60)

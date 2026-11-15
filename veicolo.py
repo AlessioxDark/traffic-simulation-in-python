@@ -1,14 +1,16 @@
+import semaforo
 import pygame
 
 
 
 
 class Car:
-    def __init__(self,x,y,direction,velocity,img):
+    def __init__(self,x,y,direction,velocity,img,semaforo):
         self.x = x
         self.y = y
         self.dir = direction
         self.velocity = velocity
+        self.semaforo = semaforo
         self.img = img
     
     def move(self):
