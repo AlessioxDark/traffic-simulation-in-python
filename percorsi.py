@@ -51,47 +51,126 @@ MANOVRE_CONSENTITE = {
 }
 
 
+
 def crea_percorso(provenienza, corsia, manovra, passi=120):
 
     if manovra not in MANOVRE_CONSENTITE[corsia]:
-        raise ValueError("Manovra non consentita per questa corsia")
+        raise ValueError(
+            "Manovra non consentita per questa corsia"
+        )
 
+    if passi < 2:
+        raise ValueError("Servono almeno 2 passi")
+
+    # Punto esatto di partenza
     p0 = PARTENZE[(provenienza, corsia)]
 
+    # Direzione di ingresso
     direzione_in = DIREZIONI[provenienza]
+
+    # -------------------------------------------------
+    # ANDARE DRITTO: percorso perfettamente rettilineo
+    # -------------------------------------------------
 
     if manovra == "dritto":
 
         if provenienza == "nord":
             p3 = (p0[0], 480)
+
         elif provenienza == "sud":
             p3 = (p0[0], 224)
+
         elif provenienza == "ovest":
             p3 = (672, p0[1])
+
         else:
             p3 = (416, p0[1])
 
         direzione_out = direzione_in
 
-    else:
-        p3, direzione_out = USCITE[(provenienza, manovra)]
+        punti = []
 
-    # Punti di controllo della curva.
-    distanza = 64
+        for i in range(passi + 1):
 
+            t = i / passi
+
+            x = p0[0] + (p3[0] - p0[0]) * t
+            y = p0[1] + (p3[1] - p0[1]) * t
+
+            punti.append((x, y))
+
+        return punti, direzione_out
+
+    # -------------------------------------------------
+    # SVOLTE: UTILIZZO DELLE USCITE PRECISE
+    # -------------------------------------------------
+
+    p3, direzione_out = USCITE[
+        (provenienza, manovra)
+    ]
+
+    # Differenza tra partenza e arrivo
+    delta_x = p3[0] - p0[0]
+    delta_y = p3[1] - p0[1]
+
+    # Spazio disponibile lungo la direzione iniziale
+    spazio_ingresso = (
+        delta_x * direzione_in[0]
+        + delta_y * direzione_in[1]
+    )
+
+    # Spazio disponibile lungo la direzione finale
+    spazio_uscita = (
+        delta_x * direzione_out[0]
+        + delta_y * direzione_out[1]
+    )
+
+    # Controllo della geometria delle svolte
+    prodotto_direzioni = (
+        direzione_in[0] * direzione_out[0]
+        + direzione_in[1] * direzione_out[1]
+    )
+
+    if prodotto_direzioni != 0:
+        raise ValueError(
+            "La svolta deve essere di 90 gradi"
+        )
+
+    if spazio_ingresso <= 0 or spazio_uscita <= 0:
+        raise ValueError(
+            f"Coordinate di uscita incoerenti: "
+            f"{provenienza}, {manovra}"
+        )
+
+    # -------------------------------------------------
+    # PUNTI DI CONTROLLO DINAMICI
+    # -------------------------------------------------
+
+    # Fattore geometrico per curve a 90 gradi
+    fattore = 0.55228475
+
+    # La distanza viene calcolata in base alle corsie
+    maniglia_ingresso = spazio_ingresso * fattore
+    maniglia_uscita = spazio_uscita * fattore
+
+    # Primo punto: segue la direzione di arrivo
     p1 = (
-        p0[0] + direzione_in[0] * distanza,
-        p0[1] + direzione_in[1] * distanza
+        p0[0] + direzione_in[0] * maniglia_ingresso,
+        p0[1] + direzione_in[1] * maniglia_ingresso
     )
 
+    # Secondo punto: segue la direzione dell'uscita
     p2 = (
-        p3[0] - direzione_out[0] * distanza,
-        p3[1] - direzione_out[1] * distanza
+        p3[0] - direzione_out[0] * maniglia_uscita,
+        p3[1] - direzione_out[1] * maniglia_uscita
     )
+
+    # -------------------------------------------------
+    # CURVA DI BEZIER CUBICA
+    # -------------------------------------------------
 
     punti = []
 
-    # Curva di Bezier cubica.
     for i in range(passi + 1):
 
         t = i / passi
@@ -112,5 +191,10 @@ def crea_percorso(provenienza, corsia, manovra, passi=120):
         )
 
         punti.append((x, y))
+
+    # Il primo e l'ultimo punto sono esattamente
+    # quelli stabiliti da PARTENZE e USCITE.
+    punti[0] = p0
+    punti[-1] = p3
 
     return punti, direzione_out
