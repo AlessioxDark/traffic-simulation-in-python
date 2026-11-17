@@ -6,7 +6,6 @@ import pygame
 pygame.init()
 LARGHEZZA = 1056
 ALTEZZA = 672
-
 schermo = pygame.display.set_mode((LARGHEZZA, ALTEZZA))
 pygame.display.set_caption("Traffic System")
 
@@ -14,14 +13,8 @@ orologio = pygame.time.Clock()
 from field import create_field, grass_img,road_img,rotated_road,road_texture_img,genera_auto
 from semaforo import traffic_controller, SEMAFORI_IMG
 from veicolo import lista_auto
-from percorsi import crea_percorso,PARTENZE
-
 Running = True
 
-
-
-
-LINEE_DI_ARRESTO = [[14*32,9*32],[14*32,10*32],[19*32,11*32],[19*32,12*32],[17*32,8*32],[18*32,8*32],[15*32,13*32],[16*32,13*32]]
 SEMAFORI_POS = {
   "nord":(19*32,7*32),
   "nord_sx":(22*32,7*32),
@@ -53,45 +46,6 @@ while Running:
             elif valore == 3:
               schermo.blit(road_texture_img, (x, y))
   # VISUALIZZAZIONE DELLE TRAIETTORIE
-
-  for provenienza in ("nord", "sud", "est", "ovest"):
-
-    for corsia in ("destra", "sinistra"):
-
-        manovre = (
-            "dritto", "destra"
-        ) if corsia == "destra" else (
-            "dritto", "sinistra"
-        )
-
-        for manovra in manovre:
-
-            punti, direzione = crea_percorso(
-                provenienza,
-                corsia,
-                manovra
-            )
-
-            colore = {
-                "dritto": (0, 255, 0),
-                "destra": (255, 180, 0),
-                "sinistra": (255, 0, 0)
-            }[manovra]
-
-            punti_disegno = [
-                (round(x), round(y))
-                for x, y in punti
-            ]
-
-            pygame.draw.lines(
-                schermo,
-                colore,
-                False,
-                punti_disegno,
-                2
-            )
-
-
   
   for auto in lista_auto:  
     auto.aggiorna()
@@ -102,7 +56,7 @@ while Running:
     )
     
     
-  if tick % (10*60) == 0:
+  if tick % (5*60) == 0:
     genera_auto()
   lista_auto[:] = [
     auto for auto in lista_auto

@@ -12,32 +12,37 @@ DIREZIONI = {
 # La corsia è indicata rispetto alla direzione di marcia.
 
 PARTENZE = {
-    ("nord", "destra"): (560, 272),
-    ("nord", "sinistra"): (592, 272),
+    ("nord", "destra"): (496, 272),
+    ("nord", "sinistra"): (528, 272),
 
-    ("sud", "destra"): (528, 432),
-    ("sud", "sinistra"): (496, 432),
+    ("sud", "destra"): (592, 432),
+    ("sud", "sinistra"): (560, 432),
 
-    ("ovest", "destra"): (464, 336),
-    ("ovest", "sinistra"): (464, 304),
+    # Le corsie di ovest erano invertite
+    ("ovest", "destra"): (464, 400),
+    ("ovest", "sinistra"): (464, 368),
 
-    ("est", "destra"): (624, 368),
-    ("est", "sinistra"): (624, 400)
+    # Anche quelle di est erano invertite
+    ("est", "destra"): (624, 304),
+    ("est", "sinistra"): (624, 336)
 }
-
 # Direzione e punto di uscita per le svolte.
 USCITE = {
-    ("nord", "destra"): ((416, 368), (-1, 0)),
-    ("nord", "sinistra"): ((672, 336), (1, 0)),
+    # Provenienza nord
+    ("nord", "destra"): ((416, 304), (-1, 0)),
+    ("nord", "sinistra"): ((672, 368), (1, 0)),
 
-    ("sud", "destra"): ((672, 336), (1, 0)),
-    ("sud", "sinistra"): ((416, 368), (-1, 0)),
+    # Provenienza sud
+    ("sud", "destra"): ((672, 400), (1, 0)),
+    ("sud", "sinistra"): ((416, 336), (-1, 0)),
 
-    ("ovest", "destra"): ((560, 480), (0, 1)),
-    ("ovest", "sinistra"): ((528, 224), (0, -1)),
+    # Provenienza ovest
+    ("ovest", "destra"): ((496, 480), (0, 1)),
+    ("ovest", "sinistra"): ((560, 224), (0, -1)),
 
-    ("est", "destra"): ((528, 224), (0, -1)),
-    ("est", "sinistra"): ((560, 480), (0, 1))
+    # Provenienza est
+    ("est", "destra"): ((592, 224), (0, -1)),
+    ("est", "sinistra"): ((528, 480), (0, 1))
 }
 
 MANOVRE_CONSENTITE = {

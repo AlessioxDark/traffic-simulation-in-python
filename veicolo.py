@@ -8,6 +8,8 @@ from semaforo import traffic_controller
 
 CAR_WIDTH = 32
 CAR_HEIGHT = 32
+DISTANZA_SICUREZZA = 40
+
 lista_auto = []
 
 black_car = pygame.transform.scale(
@@ -93,25 +95,45 @@ class Car:
             self.last_angle = angolo
 
     def avvicinamento(self):
-
+        can_print = self.provenienza == "est" and self.corsia == "destra"
         dx, dy = self.dir
 
         # Distanza dalla linea di arresto
-        distanza = (
+        distanza_stop = (
             (self.stop_point[0] - self.cx) * dx
             + (self.stop_point[1] - self.cy) * dy
         )
 
-        if distanza <= self.velocity:
+        distanza_stop = max(0, distanza_stop)
 
-            self.cx, self.cy = self.stop_point
+    # Velocità massima consentita
+        passo = min(self.velocity, distanza_stop)
 
-            self.stato = "ATTESA"
+        # Controlliamo la macchina davanti
+        distanza_auto = self.distanza_auto_davanti()
+        if can_print:
+            print(f"io: {self.cx} {self.cy} distanza auto: {distanza_auto}")
+        if distanza_auto is not None:
 
-        else:
+            spazio_disponibile = (
+                distanza_auto - DISTANZA_SICUREZZA
+            )
 
-            self.cx += dx * self.velocity
-            self.cy += dy * self.velocity
+            passo = min(
+                passo,
+                max(0, spazio_disponibile)
+            )
+
+        # Movimento
+        self.cx += dx * passo
+        self.cy += dy * passo
+
+            # Verifichiamo se abbiamo raggiunto la linea
+        if distanza_stop <= passo + 0.000001:
+
+                self.cx, self.cy = self.stop_point
+
+                self.stato = "ATTESA"
 
     def segui_traiettoria(self):
 
@@ -154,10 +176,41 @@ class Car:
 
             self.stato = "USCITA"
 
+
+    def distanza_auto_davanti(self):
+
+        dx, dy = self.dir
+        distanza_minima = None
+
+        for altra in lista_auto:
+
+            if altra == self:
+                continue
+
+            if (altra.provenienza != self.provenienza
+                    or altra.corsia != self.corsia):
+                continue
+
+            delta_x = altra.cx - self.cx
+            delta_y = altra.cy - self.cy
+
+            longitudinale = delta_x * dx + delta_y * dy
+
+            laterale = -delta_x * dy + delta_y * dx
+
+            if longitudinale > 0 and abs(laterale) < 20:
+
+                if (distanza_minima is None
+                        or longitudinale < distanza_minima):
+
+                    distanza_minima = longitudinale
+
+        return distanza_minima
+    
     def aggiorna(self):
-
+       
         if self.stato == "AVVICINAMENTO":
-
+           
             self.avvicinamento()
 
         elif self.stato == "ATTESA":
@@ -224,9 +277,9 @@ def aggiungi_auto(x, y, direction, img, provenienza, corsia):
 def genera_auto():
 
     # AUTO PROVENIENTI DA NORD
-    for colonna in (17, 18):
+    for colonna in (15, 16):
 
-        corsia = "destra" if colonna == 17 else "sinistra"
+        corsia = "destra" if colonna == 15 else "sinistra"
 
         img = random.choice(CARS)
 
@@ -239,9 +292,9 @@ def genera_auto():
         )
 
     # AUTO PROVENIENTI DA SUD
-    for colonna in (15, 16):
+    for colonna in (17, 18):
 
-        corsia = "sinistra" if colonna == 15 else "destra"
+        corsia = "sinistra" if colonna == 17 else "destra"
 
         img = random.choice(CARS)
 
@@ -254,9 +307,8 @@ def genera_auto():
         )
 
     # AUTO PROVENIENTI DA OVEST
-    for riga in (9, 10):
-
-        corsia = "sinistra" if riga == 9 else "destra"
+    for riga in (11, 12):
+        corsia = "destra" if riga == 12 else "sinistra"
 
         img = random.choice(CARS)
 
@@ -269,9 +321,9 @@ def genera_auto():
         )
 
     # AUTO PROVENIENTI DA EST
-    for riga in (11, 12):
+    for riga in (9, 10):
 
-        corsia = "destra" if riga == 11 else "sinistra"
+        corsia = "destra" if riga == 9 else "sinistra"
 
         img = random.choice(CARS)
 
