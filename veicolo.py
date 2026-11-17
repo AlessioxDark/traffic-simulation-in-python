@@ -95,7 +95,6 @@ class Car:
             self.last_angle = angolo
 
     def avvicinamento(self):
-        can_print = self.provenienza == "est" and self.corsia == "destra"
         dx, dy = self.dir
 
         # Distanza dalla linea di arresto
@@ -111,8 +110,7 @@ class Car:
 
         # Controlliamo la macchina davanti
         distanza_auto = self.distanza_auto_davanti()
-        if can_print:
-            print(f"io: {self.cx} {self.cy} distanza auto: {distanza_auto}")
+        
         if distanza_auto is not None:
 
             spazio_disponibile = (
@@ -273,7 +271,6 @@ def aggiungi_auto(x, y, direction, img, provenienza, corsia):
 
     lista_auto.append(car)
 
-    print(provenienza, corsia, manovra, nome_semaforo)
 def genera_auto():
 
     # AUTO PROVENIENTI DA NORD

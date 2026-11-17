@@ -93,7 +93,6 @@ class GestoreTraffico:
             self.time = -1
 
 
-        print("TIME",self.time)
         self.time+=1
 
     def get_semaforo(self, provenienza, manovra):

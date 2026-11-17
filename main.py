@@ -15,16 +15,23 @@ from semaforo import traffic_controller, SEMAFORI_IMG
 from veicolo import lista_auto
 Running = True
 
-SEMAFORI_POS = {
-  "nord":(19*32,7*32),
-  "nord_sx":(22*32,7*32),
-  "sud":(13*32,13*32),
-  "sud_sx":(10*32,13*32),
-  "ovest":(13*32,7*32),
-  "ovest_sx":(10*32,7*32),
-  "est":(19*32,13*32),
-  "est_sx":(22*32,13*32),
+GRUPPI_SEMAFORI = {
+    "OVEST": (692, 204, "nord", "nord_sx"),
+    "NORD": (384, 204, "ovest", "ovest_sx"),
+    "EST": (384, 456, "sud", "sud_sx"),
+    "SUD": (692, 456, "est", "est_sx"),
 }
+
+GAP_SEMAFORI = 6
+
+font_direzioni = pygame.font.SysFont(
+    "Arial", 18, bold=True
+)
+
+# Dimensioni delle immagini dei semafori
+SEMAFORO_W, SEMAFORO_H = next(
+    iter(SEMAFORI_IMG.values())
+).get_size()
 
 FIELD = create_field()
 tick = 0
@@ -66,9 +73,59 @@ while Running:
     )
 ]
     
-  for semaforo_name,semaforo in traffic_controller.semafori.items():   
-      schermo.blit(SEMAFORI_IMG[semaforo.color], SEMAFORI_POS[semaforo_name])
-    
+  # VISUALIZZAZIONE DEI QUATTRO GRUPPI SEMAFORICI
+
+  for direzione, dati in GRUPPI_SEMAFORI.items():
+
+      centro_x, y, nome_normale, nome_sx = dati
+
+      # Recuperiamo i due semafori
+      sem_normale = traffic_controller.semafori[nome_normale]
+      sem_sx = traffic_controller.semafori[nome_sx]
+
+      img_normale = SEMAFORI_IMG[sem_normale.color]
+      img_sx = SEMAFORI_IMG[sem_sx.color]
+
+      # Calcoliamo la larghezza complessiva della coppia
+      larghezza_totale = SEMAFORO_W * 2 + GAP_SEMAFORI
+
+      # Posizionamento affiancato e centrato
+      x_inizio = centro_x - larghezza_totale // 2
+
+      # Semaforo normale
+      schermo.blit(
+          img_normale,
+          (x_inizio, y)
+      )
+
+      # Semaforo svolta a sinistra
+      schermo.blit(
+          img_sx,
+          (x_inizio + SEMAFORO_W + GAP_SEMAFORI, y)
+      )
+
+      # Nome della direzione
+      testo = font_direzioni.render(
+          direzione,
+          True,
+          (255, 255, 255)
+      )
+
+      testo_rect = testo.get_rect(
+          midbottom=(centro_x, y - 6)
+      )
+
+      # Sfondo per rendere leggibile la scritta
+      sfondo = testo_rect.inflate(10, 6)
+
+      pygame.draw.rect(
+          schermo,
+          (35, 35, 35),
+          sfondo,
+          border_radius=4
+      )
+
+      schermo.blit(testo, testo_rect)
 
   tick+=1
   # Aggiorna il display limitando a 60 FPS
